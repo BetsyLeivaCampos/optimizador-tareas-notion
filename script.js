@@ -22,7 +22,7 @@ function enviarTarea() {
     }
   };
 
-  fetch('https://hook.us2.make.com/sb8ucqi2s7lccn7xkjeiysu08k236kcc', {
+  fetch('/webhook', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
