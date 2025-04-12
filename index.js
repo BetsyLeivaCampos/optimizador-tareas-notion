@@ -1,50 +1,93 @@
-
 const express = require('express');
 const axios = require('axios');
+require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
 
-// Middleware para aceptar JSON en el body
 app.use(express.json());
 app.use(express.static('./'));
 
-// Configuración de Notion
-const NOTION_TOKEN = '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';
-const DATABASE_ID = '1c967e9d749d8010b209deaa53ce7dea';
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const DATABASE_ID = process.env.DATABASE_ID;
 
-// Obtener fecha de hace 14 días
-function getCutoffDate() {
-  const date = new Date();
-  date.setDate(date.getDate() - 14);
-  return date.toISOString();
+// Función que usa GPT para analizar el texto
+async function clasificarConIA(tareaTexto) {
+  const prompt = `
+Eres una asistente personal experta en organización y Notion. Dado el siguiente texto de una tarea, responde con un JSON que contenga:
+
+{
+  "Descripción": "...", // Explica brevemente la tarea
+  "Área": "...", // Área general (Freelance & Entrepreneurship, Personal Growth, etc.)
+  "Sub Área": "...", // Subárea específica
+  "Prioridad": "...", // Alta, Media o Baja
+  "Nivel de Energía": "...", // Bajo, Medio, Alto, Me da hueva
 }
 
-// Ruta para recibir tareas desde el formulario
+Tarea: "${tareaTexto}"
+`;
+
+  const response = await axios.post(
+    'https://api.openai.com/v1/chat/completions',
+    {
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: 'Eres una IA experta en productividad y organización personal.' },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.3
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+
+  const raw = response.data.choices[0].message.content;
+  return JSON.parse(raw);
+}
+
+// Ruta que recibe tarea desde el front
 app.post('/webhook', async (req, res) => {
-  const data = req.body;
-  console.log('📥 Recibido desde el formulario:', data);
+  const tareaTexto = req.body.Tarea[0].text.content;
+  console.log('📥 Recibido:', tareaTexto);
 
   try {
-    const response = await axios.post(
+    const clasificacion = await clasificarConIA(tareaTexto);
+    console.log('🤖 Clasificación IA:', clasificacion);
+
+    // Enviar a Notion
+    await axios.post(
       'https://api.notion.com/v1/pages',
       {
         parent: { database_id: DATABASE_ID },
         properties: {
           Tarea: {
-            title: [{ text: { content: data.Tarea[0].text.content } }]
+            title: [{ text: { content: tareaTexto } }]
+          },
+          Descripción: {
+            rich_text: [{ text: { content: clasificacion.Descripción } }]
           },
           Estado: {
-            status: { name: data.Estado.name }
+            status: { name: 'Not started' }
           },
           Prioridad: {
-            select: { name: data.Prioridad.name }
+            select: { name: clasificacion.Prioridad }
           },
           Área: {
-            select: { name: data.Área.name }
+            select: { name: clasificacion['Área'] }
           },
-          'Fecha de vencimiento': {
-            date: data['Fecha de vencimiento']
+          'Sub Área': {
+            select: { name: clasificacion['Sub Área'] }
+          },
+          'Nivel de Energía': {
+            select: { name: clasificacion['Nivel de Energía'] }
+          },
+          'Fecha de creación': {
+            date: { start: new Date().toISOString() }
           }
         }
       },
@@ -57,61 +100,10 @@ app.post('/webhook', async (req, res) => {
       }
     );
 
-    res.json({ success: true, message: '✅ Tarea guardada en Notion' });
+    res.json({ success: true, message: '✅ Tarea enviada y clasificada con IA' });
   } catch (error) {
-    console.error('❌ Error:', error.response?.data || error.message);
-    res.status(500).json({ success: false, message: '⚠️ Error al guardar en Notion' });
-  }
-});
-
-// Ruta para limpiar tareas antiguas
-app.get('/cleanup', async (req, res) => {
-  const cutoffDate = getCutoffDate();
-
-  try {
-    const response = await axios.post(
-      `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
-      {
-        filter: {
-          and: [
-            {
-              property: 'Estado',
-              status: { equals: 'Done' }
-            },
-            {
-              property: 'Fecha de vencimiento',
-              date: { before: cutoffDate }
-            }
-          ]
-        }
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${NOTION_TOKEN}`,
-          'Notion-Version': '2022-06-28'
-        }
-      }
-    );
-
-    const pages = response.data.results;
-    
-    for (const page of pages) {
-      await axios.patch(
-        `https://api.notion.com/v1/pages/${page.id}`,
-        { archived: true },
-        {
-          headers: {
-            Authorization: `Bearer ${NOTION_TOKEN}`,
-            'Notion-Version': '2022-06-28'
-          }
-        }
-      );
-    }
-
-    res.json({ success: true, message: `🗑️ ${pages.length} tareas archivadas` });
-  } catch (error) {
-    console.error('❌ Error:', error.response?.data || error.message);
-    res.status(500).json({ success: false, message: '⚠️ Error al archivar tareas' });
+    console.error('❌ Error al procesar:', error.response?.data || error.message);
+    res.status(500).json({ success: false, message: '⚠️ Error en la clasificación o envío a Notion' });
   }
 });
 
