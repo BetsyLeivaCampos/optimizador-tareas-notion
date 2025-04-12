@@ -13,13 +13,7 @@ function enviarTarea() {
           content: tareaTexto
         }
       }
-    ],
-    Estado: { name: 'Not started' },
-    Prioridad: { name: 'Alta' },
-    Área: { name: 'Marketing' },
-    'Fecha de vencimiento': {
-      start: new Date().toISOString().split('T')[0]
-    }
+    ]
   };
 
   fetch('/webhook', {
@@ -29,11 +23,11 @@ function enviarTarea() {
     },
     body: JSON.stringify(payload)
   })
-    .then(response => {
-      if (response.ok) {
-        document.getElementById('status').textContent = '✅ Tarea enviada con éxito.';
-      } else {
-        document.getElementById('status').textContent = '❌ Error al enviar la tarea.';
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('status').textContent = data.message;
+      if (data.success) {
+        document.getElementById('tarea').value = '';
       }
     })
     .catch(() => {
