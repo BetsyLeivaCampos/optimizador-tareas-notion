@@ -18,24 +18,83 @@ const DATABASE_ID = process.env.DATABASE_ID;
 
 // Función que usa GPT para analizar el texto
 async function clasificarConIA(tareaTexto) {
-  const prompt = `
-Eres una asistente personal experta en organización y Notion. Dado el siguiente texto de una tarea, responde con un JSON que contenga:
-
-{
-  "Descripción": "...", // Explica brevemente la tarea
-  "Área": "...", // Área general (Freelance & Entrepreneurship, Personal Growth, etc.)
-  "Sub Área": "...", // Subárea específica
-  "Prioridad": "...", // Alta, Media o Baja
-  "Nivel de Energía": "...", // Bajo, Medio, Alto, Me da hueva
-}
-
-Tarea: "${tareaTexto}"
-`;
+const prompt = `
+  Eres una asistente personal experta en productividad y Notion. 
+  Tu tarea es analizar el texto de una tarea y clasificarlo en un JSON estructurado.
+  
+  El JSON debe tener esta forma:
+  
+  {
+    "Descripción": "...", // Explica brevemente qué implica la tarea
+    "Área": "...", // Usa solo una de las áreas listadas abajo
+    "Sub Área": "...", // Usa solo una de las subáreas correspondientes al área elegida
+    "Prioridad": "...", // Elige entre: Alta, Media o Baja
+    "Nivel de Energía": "..." // Elige entre: Alto, Medio, Bajo, Me da hueva
+  }
+  
+  Áreas y Sub Áreas válidas:
+  
+  Freelance & Entrepreneurship:
+  - External client projects
+  - Side hustles
+  - TapTap / NeoTap
+  - Investments
+  
+  Personal Growth:
+  - Journaling & Daily Check-ins
+  - Neuropsychology Readings
+  - Therapy & Emotional Tracking
+  - Food & Medication Tracking
+  - Physical Health & Habits
+  
+  Professional Growth:
+  - CV building
+  - Skills Roadmap
+  - Job searching
+  - Career development
+  
+  Academic Life:
+  - Erasmus Master’s Program
+  - Academic Portfolio
+  - Languages
+  - Career roadmap
+  
+  Content & Creative Work:
+  - Moodboards & Visual Notes
+  - Instagram
+  - YouTube
+  - Style & Fashion
+  - TikTok
+  
+  Life & Wellbeing:
+  - Home / Cleaning / Setup
+  - Bureaucratic Tasks
+  - Couple / Family / Friends
+  - Financial Organization
+  - Travel Planning (Personal)
+  - Celebrations & Social Life
+  
+  Prioridad:
+  - Alta
+  - Media
+  - Baja
+  
+  Nivel de Energía:
+  - Alto
+  - Medio
+  - Bajo
+  - Me da hueva
+  
+  No escribas ninguna explicación ni introducción. 
+  Tu única respuesta debe ser el JSON válido.
+  Tarea: "${tareaTexto}"
+  `;
+  
 
   const response = await axios.post(
     'https://api.openai.com/v1/chat/completions',
     {
-      model: 'gpt-4',
+      model: 'gpt-4-turbo',
       messages: [
         { role: 'system', content: 'Eres una IA experta en productividad y organización personal.' },
         { role: 'user', content: prompt }
