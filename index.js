@@ -106,6 +106,11 @@ app.post('/webhook', async (req, res) => {
     res.status(500).json({ success: false, message: '⚠️ Error en la clasificación o envío a Notion' });
   }
 });
+const path = require('path');
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
