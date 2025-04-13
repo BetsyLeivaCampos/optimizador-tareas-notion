@@ -23,15 +23,22 @@ const prompt = `
   Tu tarea es analizar el texto de una tarea y clasificarlo en un JSON estructurado.
   
   El JSON debe tener esta forma:
-  
+
   {
-    "Descripción": "...", // Explica brevemente qué implica la tarea
-    "Deadline": "YYYY-MM-DD" // Si no se menciona en el texto, infiere una fecha lógica: 1 día si es prioridad alta, 3 si es media, 5 si es baja.
-    "Área": "...", // Usa solo una de las áreas listadas abajo
-    "Sub Área": "...", // Usa solo una de las subáreas correspondientes al área elegida
-    "Prioridad": "...", // Elige entre: Alta, Media o Baja
-    "Nivel de Energía": "..." // Elige entre: Alto, Medio, Bajo, Me da hueva
-  }
+    "Título": "...",                // Reformulación breve + input original
+    "Descripción": "...",           // Explica brevemente qué implica la tarea
+    "Deadline": "YYYY-MM-DD",       // Si no se menciona en el texto, infiere una fecha lógica: 1 día si es prioridad alta, 3 si es media, 5 si es baja
+    "Área": "...",                  // Usa solo una de las áreas listadas abajo
+    "Sub Área": "...",              // Usa solo una subárea correspondiente al área
+    "Prioridad": "...",             // Alta, Media o Baja
+    "Nivel de Energía": "..."       // Alto, Medio, Bajo, Me da hueva
+  }  
+
+  Devuelve también un campo "Título", que debe ser una reformulación breve y profesional del objetivo principal de la tarea, seguido de dos puntos y el texto original tal como fue escrito. Por ejemplo:
+
+Input: "tengo ganas de ir a comer ramen con mis amigos y lo quiero planear"
+
+Título: "Planear salida por ramen con amigos: tengo ganas de ir a comer ramen con mis amigos y lo quiero planear"
   
   Áreas y Sub Áreas válidas:
   
@@ -138,7 +145,7 @@ app.post('/webhook', async (req, res) => {
         parent: { database_id: DATABASE_ID },
         properties: {
           Tarea: {
-            title: [{ text: { content: tareaTexto } }]
+            title: [{ text: { content: clasificacion.Título } }]
           },
           Descripción: {
             rich_text: [{ text: { content: clasificacion.Descripción } }]
