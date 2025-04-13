@@ -1,16 +1,20 @@
 const express = require('express');
 const axios = require('axios');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
 
+// Configurar middlewares
 app.use(express.json());
-app.use(express.static('./'));
+app.use(express.static(path.join(__dirname, 'public')));
 
+// Variables del entorno
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const DATABASE_ID = process.env.DATABASE_ID;
+
 
 // Función que usa GPT para analizar el texto
 async function clasificarConIA(tareaTexto) {
@@ -106,6 +110,8 @@ app.post('/webhook', async (req, res) => {
     res.status(500).json({ success: false, message: '⚠️ Error en la clasificación o envío a Notion' });
   }
 });
+
+
 const path = require('path');
 
 app.get('/', (req, res) => {
