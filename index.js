@@ -26,6 +26,7 @@ const prompt = `
   
   {
     "Descripción": "...", // Explica brevemente qué implica la tarea
+    "Deadline": "YYYY-MM-DD" // Si no se menciona en el texto, infiere una fecha lógica: 1 día si es prioridad alta, 3 si es media, 5 si es baja.
     "Área": "...", // Usa solo una de las áreas listadas abajo
     "Sub Área": "...", // Usa solo una de las subáreas correspondientes al área elegida
     "Prioridad": "...", // Elige entre: Alta, Media o Baja
@@ -114,6 +115,14 @@ const prompt = `
 }
 
 // Ruta que recibe tarea desde el front
+
+function calcularDeadlinePorPrioridad(prioridad) {
+  const diasExtra = prioridad === 'Alta' ? 2 : prioridad === 'Media' ? 3 : 5;
+  const fecha = new Date();
+  fecha.setDate(fecha.getDate() + diasExtra);
+  return fecha.toISOString().split('T')[0];
+}
+
 app.post('/webhook', async (req, res) => {
   const tareaTexto = req.body.Tarea[0].text.content;
   console.log('📥 Recibido:', tareaTexto);
@@ -133,6 +142,13 @@ app.post('/webhook', async (req, res) => {
           },
           Descripción: {
             rich_text: [{ text: { content: clasificacion.Descripción } }]
+          },
+          Deadline: {
+            date: {
+              start: clasificacion['Fecha de vencimiento'] 
+                ? clasificacion['Fecha de vencimiento']
+                : calcularDeadlinePorPrioridad(clasificacion.Prioridad)
+            }
           },
           Estado: {
             status: { name: 'Not started' }
@@ -178,3 +194,4 @@ app.get('/', (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
 });
+
