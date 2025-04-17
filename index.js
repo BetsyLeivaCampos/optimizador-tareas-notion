@@ -81,6 +81,9 @@ Título: "Planear salida por ramen con amigos: tengo ganas de ir a comer ramen c
   - Financial Organization
   - Travel Planning (Personal)
   - Celebrations & Social Life
+
+  Others
+  - Others
   
   Prioridad:
   - Alta
