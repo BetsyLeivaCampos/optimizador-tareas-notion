@@ -127,10 +127,10 @@ Tarea a clasificar: "${tareaTexto}"
     console.log("📦 Contenido bruto de la IA:\n", raw);
 
     try {
-      return JSON.parse(raw);
-    } catch (e) {
-      console.error("❌ Error al parsear el JSON:", raw);
-      throw new Error("La IA no devolvió un JSON válido. Input probablemente confuso.");
+      // ... lo que sea que estés intentando
+    } catch (error) {
+      console.error('❌ Error al procesar:', error.response?.data || error.message);
+      res.status(500).json({ success: false, message: '⚠️ Error en la clasificación o envío a Notion' });
     }
 
   } catch (error) {
