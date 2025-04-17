@@ -85,6 +85,12 @@
    - Financial Organization
    - Travel Planning (Personal)
    - Celebrations & Social Life
+
+   Bright (Full‑Time Job):
+   - Internal Requests & Events
+   - Strategic Storytelling & Brand Communication
+   - Visual Content & Collaterals Creation
+   - Product & UX Design
    
    Prioridad:
    - Alta
@@ -97,6 +103,8 @@
    - Bajo
    - Me da hueva
    
+   Si la tarea se relaciona con mi trabajo en Bright, selecciona el área Bright y la subcategoría que mejor corresponda según las descripciones anteriores.
+
    Si el texto tiene menos de 5 caracteres alfabéticos (o solo emojis / signos),
 clasifícalo automáticamente como:
 - "Área": "Others"
