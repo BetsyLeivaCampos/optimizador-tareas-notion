@@ -96,6 +96,12 @@ Título: "Planear salida por ramen con amigos: tengo ganas de ir a comer ramen c
   - Bajo
   - Me da hueva
   
+  Si la tarea no tiene suficiente información (por ejemplo, solo contiene emojis o texto poco claro), clasifícala como:
+- "Área": "Others"
+- "Sub Área": "Others"
+
+Evita alucinar descripciones o categorías si el contenido no lo permite.
+
   No escribas ninguna explicación ni introducción. 
   Tu única respuesta debe ser el JSON válido.
   Tarea: "${tareaTexto}"
