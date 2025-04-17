@@ -86,9 +86,6 @@
    - Travel Planning (Personal)
    - Celebrations & Social Life
    
-   Others:
-   - Others
-   
    Prioridad:
    - Alta
    - Media
@@ -100,6 +97,11 @@
    - Bajo
    - Me da hueva
    
+   Si el texto tiene menos de 5 caracteres alfabéticos (o solo emojis / signos),
+clasifícalo automáticamente como:
+- "Área": "Others"
+- "Sub Área": "Others"
+
    ⚠️ IMPORTANTE: Devuelve únicamente un JSON válido sin ningún texto adicional. No escribas "Aquí tienes tu JSON" ni introducciones. Solo el objeto JSON.  
    Tarea a clasificar: "${tareaTexto}"
    `;
